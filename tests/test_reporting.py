@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from agentic_testing.models import Evidence, Finding
-from agentic_testing.reporting import write_finding
+from agentic_testing.reporting import write_finding, write_run_report
 
 
 def test_confirmed_finding_requires_video() -> None:
@@ -26,3 +26,9 @@ def test_report_writes_video_reference(tmp_path: Path) -> None:
     result = write_finding(finding, tmp_path / "report")
     assert result.is_file()
     assert str(video) in result.read_text()
+
+
+def test_run_report_writes_skipped_capability_summary(tmp_path: Path) -> None:
+    result = write_run_report({"status": "completed", "capabilities": [{"verdict": "uncertain"}]}, tmp_path)
+    assert result.is_file()
+    assert '"uncertain"' in result.read_text()

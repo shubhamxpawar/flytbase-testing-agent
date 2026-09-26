@@ -52,3 +52,11 @@ def write_finding(finding: Finding, output_dir: Path) -> Path:
     path = output_dir / f"{finding.id}.json"
     path.write_text(json.dumps(record, indent=2, default=str) + "\n")
     return path
+
+
+def write_run_report(summary: dict[str, object], output_dir: Path) -> Path:
+    """Write the machine-readable summary for all findings and skipped capabilities."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / "report.json"
+    path.write_text(json.dumps(summary, indent=2, default=str) + "\n")
+    return path

@@ -48,9 +48,14 @@ class TargetConfig:
     base_url: str
     map_position_epsilon_m: float = 25.0
     freshness_threshold_s: float = 30.0
-    video_identity_attribute: str = "data-device-id"
     control_api_base_url: str | None = None
     websocket_url: str | None = None
+    socket_transport: str | None = None
+    socket_namespace: str | None = None
+    socket_org_id: str | None = None
+    whep_base_url: str | None = None
+    video_player_testid: str | None = None
+    video_stream_payload_path: str | None = None
 
     def __post_init__(self) -> None:
         if not self.target_id.strip():

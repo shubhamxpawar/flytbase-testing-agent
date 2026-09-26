@@ -23,9 +23,14 @@ def load_target(path: Path) -> TargetConfig:
         base_url=raw["base_url"],
         map_position_epsilon_m=float(raw.get("map_position_epsilon_m", 25)),
         freshness_threshold_s=float(raw.get("freshness_threshold_s", 30)),
-        video_identity_attribute=raw.get("video_identity_attribute", "data-device-id"),
         control_api_base_url=raw.get("control_api_base_url"),
         websocket_url=raw.get("websocket_url"),
+        socket_transport=raw.get("socket_transport"),
+        socket_namespace=raw.get("socket_namespace"),
+        socket_org_id=raw.get("socket_org_id"),
+        whep_base_url=raw.get("whep_base_url"),
+        video_player_testid=raw.get("video_player_testid"),
+        video_stream_payload_path=raw.get("video_stream_payload_path"),
     )
 
 

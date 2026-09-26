@@ -1,0 +1,30 @@
+- id: G1
+  category: security
+  goal: An unauthenticated user cannot open an incident dashboard by URL.
+- id: G2
+  category: functional
+  goal: A valid incident link reaches the dashboard in at most two actions.
+- id: G3
+  category: functional-audit
+  goal: Participant lists accurately reflect joined and departed participants.
+- id: G4
+  category: telemetry
+  goal: Displayed device connection state matches live telemetry.
+- id: G5
+  category: functional
+  goal: Selected drone telemetry, map position, and video all refer to the same drone.
+- id: G6
+  category: responsive
+  goal: Every primary action is visible and operable at 375px width.
+- id: G7
+  category: telemetry
+  goal: Stale or disconnected data is visibly marked as stale.
+- id: G8
+  category: security-functional
+  goal: Ended incident history is read-only with no reachable edit controls.
+- id: G9
+  category: visual
+  goal: Required form fields and primary actions are never silently missing.
+- id: G10
+  category: map-geospatial
+  goal: Map markers reflect current telemetry positions within configured tolerance.

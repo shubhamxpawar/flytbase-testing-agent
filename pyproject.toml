@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-testing"
+version = "0.1.0"
+description = "Deterministic, evidence-backed browser testing for controllable web applications."
+requires-python = ">=3.11"
+dependencies = [
+  "httpx>=0.27",
+  "playwright>=1.51",
+  "PyYAML>=6.0",
+  "websockets>=14.0",
+]
+
+[project.optional-dependencies]
+vision = ["google-genai>=1.0"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24"]
+
+[project.scripts]
+agentic-testing = "agentic_testing.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_testing"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

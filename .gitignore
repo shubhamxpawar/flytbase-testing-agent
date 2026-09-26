@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.venv/
+artifacts/
+.locator-map.json
+.pytest_cache/

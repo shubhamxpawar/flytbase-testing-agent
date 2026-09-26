@@ -20,3 +20,9 @@
 - id: C7
   category: interaction
   goal: Every rendered Cockpit-owned link and button has a visible, non-inert interaction surface.
+- id: R1
+  category: security
+  goal: The cockpit requires authentication before an operator can access telemetry and controls.
+- id: C8
+  category: exploration
+  goal: Opening the Control panel launches an operational dashboard with usable controls.

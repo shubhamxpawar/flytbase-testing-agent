@@ -26,7 +26,7 @@ The result is designed for reproducible hackathon evidence, not a pile of specul
 
 ### Current Cockpit run coverage
 
-The live FlytBase profile runs seven Cockpit-specific browser journeys. They select real drones, change map mode, resize to a mobile viewport, read rendered telemetry, inspect the video tile, and audit live links/buttons. Every journey captures its post-action state, so capability screenshots and videos are not repeated home-page captures. Product concepts that Cockpit does not have (incident joining, participants, auth gates) remain unsupported rather than being guessed.
+The live FlytBase profile runs Cockpit-specific browser journeys plus explicit product requirements. They select real drones, change map mode, resize to a mobile viewport, read rendered telemetry, inspect the video tile, audit live links/buttons, open the separate Control panel window, and verify whether authentication is actually required. A missing required workflow is reported as a finding, not converted into a healthy capability.
 
 ## Quick start
 

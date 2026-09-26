@@ -23,6 +23,8 @@ _EVALUATORS = {
     "C5": "telemetry_state",
     "C6": "video_selection",
     "C7": "interactive_surface",
+    "R1": "authentication_required",
+    "C8": "control_panel_popup",
 }
 
 

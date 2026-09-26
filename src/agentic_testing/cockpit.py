@@ -201,4 +201,46 @@ async def evaluate_cockpit_capability(
             return Verdict.failed(f"inert or invisible interactive controls: {', '.join(broken)}")
         return Verdict.passed(f"audited {len(items)} live interactive controls")
 
+    if evaluator == "authentication_required":
+        # This requirement is evaluated from live DOM state, not a Cockpit
+        # selector. A system that exposes operational telemetry anonymously and
+        # no sign-in/password/identity control violates the stated requirement.
+        auth_controls = await page.locator(
+            "input[type='password'], input[autocomplete='username'], "
+            "button:has-text('Sign in'), button:has-text('Log in'), "
+            "a:has-text('Sign in'), a:has-text('Log in')"
+        ).count()
+        telemetry_visible = await page.get_by_test_id("telemetry-battery").is_visible(timeout=ACTION_TIMEOUT_MS)
+        if telemetry_visible and auth_controls == 0:
+            return Verdict.failed(
+                "telemetry is reachable without an authentication workflow; no sign-in control is rendered"
+            )
+        return Verdict.passed("authentication workflow is present before telemetry access")
+
+    if evaluator == "control_panel_popup":
+        link = page.locator("a.dashboard-link")
+        try:
+            async with page.expect_popup(timeout=ACTION_TIMEOUT_MS) as popup_info:
+                await link.click(timeout=ACTION_TIMEOUT_MS)
+            popup = await popup_info.value
+            await popup.wait_for_load_state("domcontentloaded", timeout=ACTION_TIMEOUT_MS)
+            await popup.get_by_test_id("dash-sim-start").wait_for(state="visible", timeout=ACTION_TIMEOUT_MS)
+            controls = await popup.locator("button, a, input, select").evaluate_all(
+                "els => els.map(el => ({text:(el.textContent||'').trim(), disabled:!!el.disabled, rect:el.getBoundingClientRect().toJSON()}))"
+            )
+            # Disabled command buttons can be correct state guards (for
+            # example, Land while a drone is grounded). They are recorded by
+            # the inventory but are not called broken or clicked.
+            bad = [
+                c["text"] or "unnamed control"
+                for c in controls
+                if not c["disabled"] and (c["rect"]["width"] <= 0 or c["rect"]["height"] <= 0)
+            ]
+            await popup.close(reason="control-panel exploration complete")
+        except Exception as error:
+            return Verdict.failed(f"Control panel popup is not operational: {type(error).__name__}: {error}")
+        if bad:
+            return Verdict.failed(f"Control panel has inert controls: {', '.join(bad)}")
+        return Verdict.passed(f"explored Control panel popup with {len(controls)} usable controls")
+
     return Verdict.uncertain(f"no Cockpit evaluator is implemented for {evaluator}")

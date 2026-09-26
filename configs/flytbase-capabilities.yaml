@@ -1,0 +1,22 @@
+# Source-backed capabilities exposed by the current FlytBase Cockpit UI.
+- id: C1
+  category: telemetry
+  goal: The rendered Socket.IO status agrees with the control-plane simulator state.
+- id: C2
+  category: consistency
+  goal: Selecting a drone updates the selected list row, telemetry title, and video title together.
+- id: C3
+  category: map
+  goal: Both map modes can be selected and the map remains visible.
+- id: C4
+  category: responsive
+  goal: Status and map controls remain visible and operable at a 375px viewport.
+- id: C5
+  category: telemetry
+  goal: Selected-drone battery and flight status match the live simulator snapshot.
+- id: C6
+  category: media
+  goal: The visible video tile follows the selected drone and exposes a state label.
+- id: C7
+  category: interaction
+  goal: Every rendered Cockpit-owned link and button has a visible, non-inert interaction surface.

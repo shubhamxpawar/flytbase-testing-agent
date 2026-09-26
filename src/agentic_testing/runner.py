@@ -11,12 +11,19 @@ from typing import Any
 
 from playwright.async_api import async_playwright
 
-from .browser import READINESS_TIMEOUT_MS, PlaywrightBrowserSession, PlaywrightScenario, wait_for_socket_connected
+from .browser import (
+    READINESS_TIMEOUT_MS,
+    PlaywrightBrowserSession,
+    PlaywrightScenario,
+    wait_for_cockpit_operational,
+    wait_for_socket_connected,
+)
 from .config import load_capabilities, load_target
-from .models import Capability, Evidence, Finding, Verdict, VerdictStatus
+from .models import Capability, Evidence, Finding, TargetConfig, Verdict, VerdictStatus
 from .oracle import check_cockpit_page, read_live_oracle
 from .planner import CapabilityPlan, plan_capability
 from .reporting import preserve_video, write_finding, write_run_report
+from .cockpit import evaluate_cockpit_capability
 
 
 @dataclass(frozen=True)
@@ -33,27 +40,13 @@ class RunnerPreflightError(RuntimeError):
     """A clear, expected failure when the local cockpit is not ready."""
 
 
-async def _evaluate(plan: CapabilityPlan, page: Any, oracle: dict[str, Any]) -> Verdict:
+async def _evaluate(plan: CapabilityPlan, page: Any, oracle: dict[str, Any], target: TargetConfig) -> Verdict:
     """Run a check only when both sides of its oracle are configured and observable."""
     if not oracle.get("available"):
         return Verdict.uncertain(str(oracle.get("reason", "oracle is unavailable")))
 
-    # The cockpit's one immediately decidable cross-system state is whether its
-    # backend is healthy and the frontend's Socket.IO badge is connected.
-    if plan.evaluator == "connection_state":
-        badge = page.get_by_test_id("socket-status")
-        try:
-            text = (await badge.inner_text(timeout=5_000)).lower()
-        except Exception:
-            return Verdict.uncertain("socket-status test id is unavailable in the rendered UI")
-        simulator = oracle.get("health", {}).get("simulator")
-        if simulator != "connected":
-            return Verdict.uncertain("control API does not report a connected simulator")
-        if "connected" in text and "disconnected" not in text:
-            # This verifies transport readiness; it intentionally does not claim
-            # device-by-device status equivalence without a telemetry oracle map.
-            return Verdict.passed("backend simulator and rendered Socket.IO badge are connected")
-        return Verdict.failed(f"backend simulator is connected but UI badge reads {text!r}")
+    if plan.evaluator != "unsupported":
+        return await evaluate_cockpit_capability(plan.evaluator, page, oracle, target)
 
     # The remaining stock capability goals describe functionality not exposed by
     # the cockpit's control API/DOM contract. Do not replace missing mappings with
@@ -135,8 +128,17 @@ async def _run_async(
                             timeout=READINESS_TIMEOUT_MS,
                         )
                         await wait_for_socket_connected(scenario.page, timeout_ms=READINESS_TIMEOUT_MS)
+                        await wait_for_cockpit_operational(scenario.page, timeout_ms=READINESS_TIMEOUT_MS)
                         oracle = await read_live_oracle(target)
-                        final_verdict = await _evaluate(plan, scenario.page, oracle)
+                        try:
+                            final_verdict = await _evaluate(plan, scenario.page, oracle, target)
+                        except Exception as error:
+                            # An evaluator defect must become inspectable
+                            # evidence, not prevent every later capability
+                            # from running or hide the browser state.
+                            final_verdict = Verdict.failed(
+                                f"{plan.evaluator} evaluator raised {type(error).__name__}: {error}"
+                            )
                         if final_verdict.status is VerdictStatus.FAIL:
                             scenario.capture.mark_failure()
                         screenshot_path = capability_dir / f"attempt-{attempt + 1}.png"

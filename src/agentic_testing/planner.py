@@ -14,16 +14,15 @@ class CapabilityPlan:
 
 
 _EVALUATORS = {
-    "G1": "auth_gate",
-    "G2": "join_flow",
-    "G3": "participants",
-    "G4": "connection_state",
-    "G5": "selected_device_media",
-    "G6": "responsive_primary_action",
-    "G7": "freshness",
-    "G8": "ended_incident_read_only",
-    "G9": "required_controls",
-    "G10": "map_position",
+    # These are Cockpit product capabilities, not a generic incident-app
+    # checklist. Each evaluator has a source-verified DOM contract.
+    "C1": "connection_state",
+    "C2": "device_selection",
+    "C3": "map_view_toggle",
+    "C4": "responsive_controls",
+    "C5": "telemetry_state",
+    "C6": "video_selection",
+    "C7": "interactive_surface",
 }
 
 

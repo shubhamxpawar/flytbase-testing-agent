@@ -21,12 +21,12 @@ The result is designed for reproducible hackathon evidence, not a pile of specul
 | Reliability | Fresh-context retries for deterministic failures; `uncertain` results are skipped rather than reported as bugs. |
 | Demo mode | One visible headed Chromium context with 250 ms action pacing and a separately recorded tab per capability. |
 | Oracle/configuration | YAML target profile, live cockpit/control API preflight, Socket.IO/WHEP metadata, freshness threshold, and target-namespaced locator persistence. |
-| Assertions | State, geometry, security, selected-device consistency, map position, video identity, telemetry freshness, participants, and join-flow assertion modules. |
+| Assertions | Source-backed connection, device-selection, map-mode, responsive-control, telemetry, video-tile, and live-interaction checks. Generic assertion modules remain available for targets that expose those product concepts. |
 | Calibration | Nine reversible Level 1 mutation definitions, local fixture state, and separate fixture/target scorecard support. |
 
 ### Current Cockpit run coverage
 
-The live FlytBase profile currently executes the source-backed Socket.IO/control-plane readiness check. Goals without a verified UI-to-oracle mapping are recorded as `uncertain` with complete evidence instead of being guessed. This is intentional precision behavior, not a passing claim for unsupported checks.
+The live FlytBase profile runs seven Cockpit-specific browser journeys. They select real drones, change map mode, resize to a mobile viewport, read rendered telemetry, inspect the video tile, and audit live links/buttons. Every journey captures its post-action state, so capability screenshots and videos are not repeated home-page captures. Product concepts that Cockpit does not have (incident joining, participants, auth gates) remain unsupported rather than being guessed.
 
 ## Quick start
 
@@ -72,7 +72,7 @@ Use the detailed [demo storyboard](docs/hackathon-demo.md). A concise 2-minute s
 
 1. Show Cockpit at `localhost:5173`, the `socket connected` badge, drones, telemetry, and control panel.
 2. Show `configs/flytbase-cockpit.yaml` and explain that URLs, Socket.IO, WHEP, freshness threshold, and test IDs were verified from source and the live app.
-3. Run `./scripts/run-demo.sh`; narrate that the test agent waits for the real socket badge instead of `networkidle`, captures a video/screenshot/oracle payload for every capability, and does not invent failures for unmapped goals.
+3. Run `./scripts/run-demo.sh`; narrate that the test agent waits for the real socket badge instead of `networkidle`, then runs distinct journeys—device selection, map switching, responsive layout, telemetry comparison, video inspection, and interactive-control audit—with a video/screenshot/oracle payload for each.
 4. Open `artifacts/run-*/report.json`, one screenshot, one video, and its oracle payload.
 5. Explain the mutation catalog and that target scorecards are kept separate from fixture scorecards.
 
@@ -82,7 +82,7 @@ Do not describe `uncertain` goals as passing. Their value is that the agent repo
 
 1. Copy `configs/target.example.yaml` and assign a stable, unique `target_id`. This prevents locator knowledge from one application being reused against another.
 2. Set the frontend URL, control API, transport metadata, source-backed video identity, map convention, and freshness threshold. Verify each value from your source or live instance.
-3. Copy `configs/capabilities.example.yaml` and write outcome goals—what the user must be able to accomplish—not selectors or bug descriptions.
+3. Copy `configs/capabilities.example.yaml` and write outcome goals—what the user must be able to accomplish—not selectors or bug descriptions. Add a source-backed target adapter, like `cockpit.py`, for the interactions and data extraction specific to that system.
 4. Add a target evaluator/mapping in `planner.py` and `runner.py` only where you have both a trustworthy oracle and a rendered UI value. Return `uncertain` when either is absent.
 5. Add a reversible calibration mutation and unit/integration test for each new check before trusting its catch rate.
 6. Run `agentic-testing run --target <target.yaml> --capabilities <goals.yaml> --out artifacts/ --headless` in CI or `--headed --reuse-session` for demonstrations.
@@ -106,5 +106,5 @@ artifacts/run-<timestamp>/
 
 ```bash
 .venv/bin/python -m pytest -q
-.venv/bin/agentic-testing validate-config configs/flytbase-cockpit.yaml configs/capabilities.example.yaml
+.venv/bin/agentic-testing validate-config configs/flytbase-cockpit.yaml configs/flytbase-capabilities.yaml
 ```

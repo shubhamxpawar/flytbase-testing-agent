@@ -13,7 +13,7 @@ fi
 
 exec "$runner" run \
   --target "$project_dir/configs/flytbase-cockpit.yaml" \
-  --capabilities "$project_dir/configs/capabilities.example.yaml" \
+  --capabilities "$project_dir/configs/flytbase-capabilities.yaml" \
   --out "$project_dir/artifacts" \
   --headed \
   --reuse-session \

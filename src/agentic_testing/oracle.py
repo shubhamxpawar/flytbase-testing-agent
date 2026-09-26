@@ -57,6 +57,8 @@ async def read_live_oracle(target: TargetConfig) -> dict[str, Any]:
             health_response.raise_for_status()
             devices_response = await client.get(f"{base_url}/devices")
             devices_response.raise_for_status()
+            state_response = await client.get(f"{base_url}/control/state")
+            state_response.raise_for_status()
     except httpx.HTTPError as error:
         return {
             "available": False,
@@ -69,6 +71,7 @@ async def read_live_oracle(target: TargetConfig) -> dict[str, Any]:
         "available": True,
         "health": health_response.json(),
         "devices": devices_response.json(),
+        "state": state_response.json(),
     }
 
 

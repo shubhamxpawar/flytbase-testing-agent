@@ -37,6 +37,20 @@ async def wait_for_socket_connected(page: Any, *, timeout_ms: int = READINESS_TI
         ) from error
 
 
+async def wait_for_cockpit_operational(page: Any, *, timeout_ms: int = READINESS_TIMEOUT_MS) -> None:
+    """Wait for device and telemetry rendering after Socket.IO connects."""
+    try:
+        await page.locator("[data-testid^='device-row-']").first.wait_for(
+            state="visible", timeout=timeout_ms
+        )
+        await page.get_by_test_id("telemetry-battery").wait_for(state="visible", timeout=timeout_ms)
+    except PlaywrightTimeoutError as error:
+        raise TimeoutError(
+            f"Cockpit UI did not become operational after {timeout_ms / 1000:.0f}s: "
+            "expected a visible device row and telemetry-battery field"
+        ) from error
+
+
 @dataclass
 class ScenarioVideo:
     """Lifecycle state for one scenario or retry attempt."""
